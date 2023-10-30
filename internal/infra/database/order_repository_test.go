@@ -71,7 +71,7 @@ func (suite *OrderRepositoryTestSuite) TestShouldReturnAllOrders() {
 	stmt.Exec("3", 30.0, 0.3, 30.3)
 
 	repo := NewOrderRepository(suite.Db)
-	orders, err := repo.ListOrders()
+	orders, err := repo.List()
 	suite.NoError(err)
 	suite.Equal(3, len(orders))
 }
