@@ -8,6 +8,10 @@ import (
 
 	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 	"github.com/streadway/amqp"
 	"github.com/willcmarques/goexpert-desafio-clean-arch/configs"
 	"github.com/willcmarques/goexpert-desafio-clean-arch/internal/event/handler"
@@ -20,6 +24,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	// mysql
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -34,6 +39,16 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	driver, err := mysql.WithInstance(db, &mysql.Config{})
+	if err != nil {
+		panic(err)
+	}
+	m, err := migrate.NewWithDatabaseInstance("file://./sql/migrations", "mysql", driver)
+	if err != nil {
+		panic(err)
+	}
+	m.Up()
 
 	rabbitMQChannel := getRabbitMQChannel()
 
